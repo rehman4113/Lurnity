@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learning Platform</title>
+    <!-- Use Tailwind CSS for responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Lucide for icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .page-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 2rem;
+        }
+        .course-card {
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #4b5563;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #d1d5db;
+            transition: border-color 0.2s ease-in-out;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.5);
+        }
+        .error-message {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <header class="w-full bg-white shadow-sm py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">E-Learning</h1>
+            <nav id="nav-links" class="space-x-4">
+                <button onclick="showPage('courses')" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">Courses</button>
+                <button id="login-nav-btn" onclick="showPage('login')" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">Login</button>
+                <button id="signup-nav-btn" onclick="showPage('signup')" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">Sign Up</button>
+                <button id="logout-nav-btn" onclick="handleLogout()" class="text-gray-600 hover:text-gray-900 transition-colors duration-200" style="display: none;">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-container">
+        <!-- Message Box -->
+        <div id="message-box" class="hidden w-full max-w-lg container bg-red-100 text-red-700 py-3 px-6 rounded-lg mb-4 text-center"></div>
+
+        <!-- Signup Page -->
+        <section id="signup-page" class="page-section active w-full">
+            <div class="container">
+                <h2 class="text-2xl font-bold text-center mb-6">Create an Account</h2>
+                <form id="signup-form" class="space-y-4">
+                    <div>
+                        <input type="text" id="signup-firstName" placeholder="First Name" name="firstName" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <input type="text" id="signup-lastName" placeholder="Last Name" name="lastName" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <input type="email" id="signup-email" placeholder="Email Address" name="email" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <input type="password" id="signup-password" placeholder="Password (min 8 characters)" name="password" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <select id="signup-role" name="role" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="STUDENT">Student</option>
+                            <option value="ADMIN">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full btn-primary text-lg font-semibold">Sign Up</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Login Page -->
+        <section id="login-page" class="page-section w-full">
+            <div class="container">
+                <h2 class="text-2xl font-bold text-center mb-6">Log In</h2>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <input type="email" id="login-email" placeholder="Email Address" name="email" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <input type="password" id="login-password" placeholder="Password" name="password" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full btn-primary text-lg font-semibold">Log In</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Courses Page -->
+        <section id="courses-page" class="page-section w-full">
+            <div class="w-full flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Available Courses</h2>
+                <button id="create-course-btn" onclick="showPage('create-course')" class="btn-primary" style="display: none;">
+                    Create Course
+                </button>
+            </div>
+            <div id="course-list-container" class="w-full">
+                <p id="course-loading" class="text-center text-gray-500">Loading courses...</p>
+                <div id="course-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- Course Details Page -->
+        <section id="course-details-page" class="page-section w-full">
+            <div class="container max-w-4xl">
+                <button onclick="showPage('courses')" class="btn-secondary flex items-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                    Back to Courses
+                </button>
+                <div id="course-details" class="p-8">
+                    <h2 id="course-details-title" class="text-4xl font-extrabold mb-4"></h2>
+                    <p id="course-details-description" class="text-gray-700 text-lg"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Create Course Page -->
+        <section id="create-course-page" class="page-section w-full">
+            <div class="container">
+                <h2 class="text-2xl font-bold text-center mb-6">Create a New Course</h2>
+                <form id="create-course-form" class="space-y-4">
+                    <div>
+                        <input type="text" id="create-course-title" placeholder="Course Title" name="title" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <textarea id="create-course-description" placeholder="Course Description" name="description" rows="5" class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                    </div>
+                    <button type="submit" class="w-full btn-primary text-lg font-semibold">Create Course</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Use a simple state object to manage the application state
+        const state = {
+            authToken: null,
+            userRole: null,
+            pages: {
+                'signup': document.getElementById('signup-page'),
+                'login': document.getElementById('login-page'),
+                'courses': document.getElementById('courses-page'),
+                'course-details': document.getElementById('course-details-page'),
+                'create-course': document.getElementById('create-course-page')
+            },
+            navButtons: {
+                'login': document.getElementById('login-nav-btn'),
+                'signup': document.getElementById('signup-nav-btn'),
+                'logout': document.getElementById('logout-nav-btn')
+            },
+            createCourseBtn: document.getElementById('create-course-btn'),
+            messageBox: document.getElementById('message-box'),
+            courseListContainer: document.getElementById('course-list'),
+            courseLoading: document.getElementById('course-loading'),
+            courseDetailsTitle: document.getElementById('course-details-title'),
+            courseDetailsDescription: document.getElementById('course-details-description')
+        };
+
+        // Base URL for API calls
+        const BASE_API_URL = ''; // You can set this to your backend URL, e.g., 'http://localhost:8080/api'
+
+        // Utility function to show and hide pages
+        const showPage = (pageId) => {
+            Object.keys(state.pages).forEach(id => {
+                state.pages[id].classList.remove('active');
+            });
+            state.pages[pageId].classList.add('active');
+            state.messageBox.classList.add('hidden');
+            state.messageBox.textContent = '';
+
+            // Automatically handle fetching courses when navigating to the courses page
+            if (pageId === 'courses') {
+                fetchCourses();
+            }
+
+            // Handle role-based access for create course page
+            if (pageId === 'create-course' && state.userRole !== 'ADMIN') {
+                showMessage('Access Denied: Only admins can create courses.', 'error');
+                showPage('courses');
+            }
+        };
+
+        // Utility function to show messages
+        const showMessage = (message, type = 'info') => {
+            state.messageBox.textContent = message;
+            state.messageBox.classList.remove('hidden', 'bg-red-100', 'bg-green-100', 'text-red-700', 'text-green-700');
+            if (type === 'error') {
+                state.messageBox.classList.add('bg-red-100', 'text-red-700');
+            } else {
+                state.messageBox.classList.add('bg-green-100', 'text-green-700');
+            }
+        };
+
+        // Function to decode JWT payload
+        const decodeJwt = (token) => {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error("Failed to decode JWT:", e);
+                return null;
+            }
+        };
+
+        // Function to update the UI based on auth state
+        const updateAuthUI = () => {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                state.authToken = token;
+                const payload = decodeJwt(token);
+                if (payload) {
+                    state.userRole = payload.role;
+                }
+                
+                state.navButtons.login.style.display = 'none';
+                state.navButtons.signup.style.display = 'none';
+                state.navButtons.logout.style.display = 'block';
+
+                if (state.userRole === 'ADMIN') {
+                    state.createCourseBtn.style.display = 'block';
+                } else {
+                    state.createCourseBtn.style.display = 'none';
+                }
+            } else {
+                state.authToken = null;
+                state.userRole = null;
+                
+                state.navButtons.login.style.display = 'block';
+                state.navButtons.signup.style.display = 'block';
+                state.navButtons.logout.style.display = 'none';
+                state.createCourseBtn.style.display = 'none';
+            }
+        };
+
+        // --- Event Handlers ---
+
+        // Signup form submission
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // Simple client-side validation
+            if (!data.firstName || !data.lastName || !data.email || !data.password) {
+                showMessage('All fields are required.', 'error');
+                return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+                showMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+            if (data.password.length < 8) {
+                showMessage('Password must be at least 8 characters long.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_API_URL}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Signup failed. Please try again.');
+                }
+
+                showMessage('Signup successful! Please log in.', 'success');
+                showPage('login');
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        });
+
+        // Login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // Simple client-side validation
+            if (!data.email || !data.password) {
+                showMessage('All fields are required.', 'error');
+                return;
+            }
+            if (data.password.length < 8) {
+                showMessage('Password must be at least 8 characters long.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Login failed. Invalid credentials.');
+                }
+
+                const result = await response.json();
+                localStorage.setItem('authToken', result.jwt);
+                updateAuthUI();
+                showMessage('Login successful!', 'success');
+                showPage('courses');
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        });
+
+        // Course creation form submission
+        document.getElementById('create-course-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            if (!state.authToken || state.userRole !== 'ADMIN') {
+                showMessage('Access Denied: You must be an admin to create courses.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_API_URL}/courses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${state.authToken}`
+                    },
+                    body: JSON.stringify(data),
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create course.');
+                }
+
+                showMessage('Course created successfully!', 'success');
+                showPage('courses');
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        });
+
+        // --- Core Application Functions ---
+
+        // Fetch and display all courses
+        const fetchCourses = async () => {
+            state.courseLoading.style.display = 'block';
+            state.courseListContainer.innerHTML = '';
+            
+            try {
+                const response = await fetch(`${BASE_API_URL}/courses`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.authToken}`
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch courses. Please log in.');
+                }
+
+                const courses = await response.json();
+                state.courseLoading.style.display = 'none';
+                
+                if (courses.length === 0) {
+                    state.courseListContainer.innerHTML = '<p class="text-center text-gray-500">No courses available yet.</p>';
+                    return;
+                }
+
+                courses.forEach(course => {
+                    const card = document.createElement('div');
+                    card.className = 'course-card p-6 flex flex-col items-center text-center';
+                    card.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap text-blue-500 mb-4">
+                            <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.82 5.09a2 2 0 0 0-1.64 0L2.6 9.084a1 1 0 0 0-.019 1.838l8.59 4.096a2 2 0 0 0 1.64 0l8.59-4.096Z"/><path d="M21.5 13.79a2.9 2.9 0 0 0-2.5-2.58"/><path d="M21.5 16.59a2.9 2.9 0 0 0-2.5-2.58"/><path d="M21.5 19.39a2.9 2.9 0 0 0-2.5-2.58"/><path d="M3.5 13.79a2.9 2.9 0 0 1 2.5-2.58"/><path d="M3.5 16.59a2.9 2.9 0 0 1 2.5-2.58"/><path d="M3.5 19.39a2.9 2.9 0 0 1 2.5-2.58"/>
+                        </svg>
+                        <h3 class="text-xl font-bold mb-2">${course.title}</h3>
+                        <p class="text-gray-500 text-sm">${course.description.substring(0, 100)}...</p>
+                    `;
+                    card.addEventListener('click', () => fetchCourseDetails(course.id));
+                    state.courseListContainer.appendChild(card);
+                });
+
+            } catch (error) {
+                state.courseLoading.style.display = 'none';
+                showMessage(error.message, 'error');
+                // Redirect to login if token is invalid or missing
+                if (error.message.includes('401') || error.message.includes('log in')) {
+                    showPage('login');
+                }
+            }
+        };
+
+        // Fetch and display a single course's details
+        const fetchCourseDetails = async (courseId) => {
+            try {
+                const response = await fetch(`${BASE_API_URL}/courses/${courseId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${state.authToken}`
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch course details.');
+                }
+
+                const course = await response.json();
+                state.courseDetailsTitle.textContent = course.title;
+                state.courseDetailsDescription.textContent = course.description;
+                showPage('course-details');
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        };
+
+        // Handle user logout
+        const handleLogout = () => {
+            localStorage.removeItem('authToken');
+            updateAuthUI();
+            showMessage('You have been logged out.', 'info');
+            showPage('login');
+        };
+
+        // Initial application setup
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAuthUI();
+            if (state.authToken) {
+                showPage('courses');
+            } else {
+                showPage('login');
+            }
+        });
+    </script>
+</body>
+</html>
