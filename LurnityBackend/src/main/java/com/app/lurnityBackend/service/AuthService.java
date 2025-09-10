@@ -22,15 +22,13 @@ public class AuthService {
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final TokenService tokenService; // Injected properly
 
+    // ------------------- SIGNUP -------------------
     public SignupResponse signup(SignupRequest request) {
         // 1. Check if user already exists
         if (userRepo.existsByEmail(request.getEmail())) {
-            // Throw exception with 409 Conflict
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Email already exists!"
-            );
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists!");
         }
 
         // 2. Create new user
@@ -38,50 +36,77 @@ public class AuthService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // ⚠️ hash this in real apps!
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
+
         // 3. Save to DB
         User savedUser = userRepo.save(user);
 
-        // 4. Return response
+        // 4. Generate tokens
+        String accessToken = jwtUtils.generateToken(savedUser.getEmail(), String.valueOf(savedUser.getRole()));
+        String refreshToken = tokenService.createRefreshToken(savedUser.getId());
+
+        // 5. Return response
         return new SignupResponse(
                 savedUser.getId(),
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
                 savedUser.getEmail(),
                 savedUser.getRole(),
+                accessToken,
+                refreshToken,
                 "Signup successful"
         );
     }
 
     // ------------------- LOGIN -------------------
     public LoginResponse login(LoginRequest request) {
-        // 1. Find user by email
-        Optional<User> userOptional = userRepo.findByEmail(request.getEmail());
+        User user = userRepo.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
-        if (userOptional.isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Invalid email or password"
-            );
-        }
-
-        User user = userOptional.get();
-
-        // 2. Check password
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
-        // 3. Generate JWT token based on email
-        String token = jwtUtils.generateToken(user.getEmail(), String.valueOf(user.getRole()));
+        // Generate access token using email + role
+        String accessToken = jwtUtils.generateToken(user.getEmail(), String.valueOf(user.getRole()));
 
-        // 4. Return login response with token
+        // Generate refresh token stored in DB
+        String refreshToken = tokenService.createRefreshToken(user.getId());
+
         return new LoginResponse(
                 "Login successful",
-                token,
+                accessToken,
+                refreshToken,
                 user.getEmail()
         );
     }
 
+    // ------------------- GET PROFILE -------------------
+    public SignupResponse getUserProfile(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        String email = jwtUtils.getEmailFromToken(token);
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new SignupResponse(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getRole(),
+                null,
+                null,
+                "Profile fetched successfully"
+        );
+    }
+
+    // ------------------- LOGOUT -------------------
+    public void logout(String refreshToken) {
+        tokenService.deleteByToken(refreshToken);
+    }
 }

@@ -6,18 +6,19 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "courses")
-public class Course {
+@Document(collection = "refresh_tokens")
+public class RefreshToken {
 
     @Id
     private String id;
 
-    private String title;
-    private String description;
-    private Double price;
-    private String contentUrl; // link to video/pdf/resource
-    private String imageUrl;
+    private String userId;   // Reference to User _id
+    private String token;    // The refresh token string
+    private Instant expiryDate; // Expiration date
+
 }

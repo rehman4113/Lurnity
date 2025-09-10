@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoginResponse {
     private String message;
-    String token; // optional, if using JWT
+    String accessToken; // optional, if using JWT
+    String refreshToken;
     private String email; // optional
 }

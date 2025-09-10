@@ -12,4 +12,5 @@ public class CourseRequestDto {
     private String description;
     private Double price;
     private String contentUrl;
+    private String imageUrl;
 }

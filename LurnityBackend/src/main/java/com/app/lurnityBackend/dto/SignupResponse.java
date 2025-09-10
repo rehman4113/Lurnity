@@ -14,5 +14,7 @@ public class SignupResponse {
     private String lastName;
     private String email;
     private Role role;
+    String accessToken; //
+    String refreshToken;
     private String message; // e.g. "Signup successful"
 }

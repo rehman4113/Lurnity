@@ -14,7 +14,7 @@ import java.util.Base64;
 public class JwtUtils {
 
     private final SecretKey jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private final long jwtExpirationMs = 3600000; // 1 hour
+    private final long jwtExpirationMs = 1000 * 60 * 60 * 24 * 3; // 3 days
 
     /**
      * Generate JWT token with email and role
